@@ -2,10 +2,11 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { auth } from './auth.middleware';
 import { BuildingModule } from './buildings/building.module';
+import { LandModule } from './lands/land.module';
 import { UserModule } from './users/user.module';
 
 @Module({
-  imports: [BuildingModule, UserModule, TypeOrmModule.forRoot({
+  imports: [BuildingModule, LandModule, UserModule, TypeOrmModule.forRoot({
     type: 'mysql',
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT),

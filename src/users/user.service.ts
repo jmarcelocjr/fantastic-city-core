@@ -9,11 +9,11 @@ import { FindOptionsWhere, Repository } from "typeorm";
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>
+        private user_repository: Repository<User>
     ) {}
 
     findOneBy(where: FindOptionsWhere<User>): Promise<User> {
-        return this.userRepository.findOneBy(where);
+        return this.user_repository.findOneBy(where);
     }
 
     async create(user: User): Promise<User> {
@@ -24,12 +24,12 @@ export class UserService {
         }
 
         user.nonce = Math.floor(Math.random() * 10000);
-        return this.userRepository.save(user);
+        return this.user_repository.save(user);
     }
 
     sign(user: User): Promise<string> {
-        return new SignJWT({ 
-            blockchain_address: user.blockchain_address 
+        return new SignJWT({
+            blockchain_address: user.blockchain_address
         })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()

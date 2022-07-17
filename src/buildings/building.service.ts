@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { BaseExceptionFilter } from "@nestjs/core";
 import * as moment from "moment";
 import { Building } from "src/entities/building.entity";
 
@@ -18,7 +17,7 @@ export class BuildingService {
 
         let time = moment(building.properties.builded_at ?? 'now');
         time.add(Building.HOURS_PER_CHARGE, 'hours');
-        
+
         let current_charge = Math.ceil((time.toDate().getTime() - (new Date()).getTime()) / 1000 / 60 / 60 / Building.HOURS_PER_CHARGE);
 
         building.properties = {

@@ -6,7 +6,7 @@ import { UserService } from './user.service';
 
 describe('UserService', () => {
   let user: User;
-  let userService: UserService;
+  let user_service: UserService;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -26,30 +26,30 @@ describe('UserService', () => {
       providers: [UserService],
     }).compile();
 
-    userService = await moduleRef.resolve(UserService);
+    user_service = await moduleRef.resolve(UserService);
 
     user = new User();
     user.blockchain_address = 'abcdef1234567890';
   });
 
   it('create', async () => {
-    let createdUser = await userService.create(user);
+    let createdUser = await user_service.create(user);
 
     expect(createdUser.id).toBeDefined();
     expect(createdUser.nonce).toBeGreaterThan(0);
   });
 
   it('sign', async () => {
-    let jwt = await userService.sign(user);
+    let jwt = await user_service.sign(user);
 
     expect(jwt).not.toBe('');
   });
 
   it('verify', async () => {
-    let createdUser = await userService.create(user);
-    let jwt = await userService.sign(createdUser);
+    let createdUser = await user_service.create(user);
+    let jwt = await user_service.sign(createdUser);
     
-    let verifiedUser = await userService.verify(jwt);
+    let verifiedUser = await user_service.verify(jwt);
 
     expect(verifiedUser.id).toBe(createdUser.id);
     expect(verifiedUser.blockchain_address).toBe(createdUser.blockchain_address);

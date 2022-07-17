@@ -5,16 +5,16 @@ import { UserService } from "./user.service";
 
 @Controller('users')
 export class UserController {
-    constructor(private userService: UserService) {}
+    constructor(private user_service: UserService) {}
 
     @Post()
     create(@Body() params: CreateUserDto): Promise<User> {
-        return this.userService.create(params);
+        return this.user_service.create(params);
     }
 
     @Post('auth')
     async auth(@Body() params: AuthUserDto): Promise<AuthResponseDto> {
-        let user = await this.userService.findOneBy({ blockchain_address: params.blockchain_address });
+        let user = await this.user_service.findOneBy({ blockchain_address: params.blockchain_address });
 
         if (!(user instanceof User)) {
             throw new UnauthorizedException('User/Sign not found');
@@ -23,7 +23,7 @@ export class UserController {
         //verify signature using nonce that is saved in user entity
 
         return {
-            access_code: await this.userService.sign(user)
+            access_code: await this.user_service.sign(user)
         };
     }
 }

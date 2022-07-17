@@ -37,7 +37,7 @@ describe('BuildingService', () => {
         current_charge: Building.MAX_CHARGE,
         charged_until: moment().add(12, 'hours').toDate()
     }
-  
+
     expect(() => {
         buildingService.recharge(building);
     }).toThrow('Already charged');
@@ -52,7 +52,7 @@ describe('BuildingService', () => {
         builded: false,
         current_charge: 0
     }
-  
+
     expect(() => {
         buildingService.recharge(building);
     }).toThrow('Not Builded Yet');
@@ -69,7 +69,7 @@ describe('BuildingService', () => {
         charged_until: moment().add(12, 'hours').toDate(),
         current_charge: Building.MAX_CHARGE
     }
-  
+
     expect(buildingService.check(building)).toBeFalsy();
     expect(building.properties.current_charge).toBe(Building.MAX_CHARGE);
   });
