@@ -1,0 +1,25 @@
+version: '3'
+services:
+  node:
+    image: 'node:lts'
+    ports:
+      - 3000:3000
+    volumes:
+      - ${PWD}:/var/www/app
+    working_dir: /var/www/app
+    links:
+      - mysql
+    command: bash -c "rm -rf dist && yarn run start:dev"
+  mysql:
+    image: 'mysql:8.0'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - 'mysql-data:/var/lib/mysql'
+volumes:
+  mysql-data:
+    driver: local
