@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { auth } from './auth.middleware';
+import { AuthMiddleware } from './auth.middleware';
 import { BuildingModule } from './buildings/building.module';
 import { LandModule } from './lands/land.module';
 import { UserModule } from './users/user.module';
@@ -22,7 +22,7 @@ import { UserModule } from './users/user.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(auth)
+      .apply(AuthMiddleware)
       .exclude(
         { path: '/users', method: RequestMethod.POST },
         '/users/auth'

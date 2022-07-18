@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { createSecretKey } from "crypto";
 import { jwtVerify, SignJWT } from "jose";
+import { JWSInvalid } from "jose/dist/types/util/errors";
 import { User } from "src/entities/user.entity";
 import { FindOptionsWhere, Repository } from "typeorm";
 
@@ -39,10 +40,14 @@ export class UserService {
     }
 
     async verify(jwt: string): Promise<User> {
-        const { payload, protectedHeader } = await jwtVerify(jwt, createSecretKey(process.env.SECRET_KEY, 'utf-8'), {
-            issuer: 'fantastic-city'
-        });
+        try {
+            const { payload, protectedHeader } = await jwtVerify(jwt, createSecretKey(process.env.SECRET_KEY, 'utf-8'), {
+                issuer: 'fantastic-city'
+            });
 
-        return this.findOneBy({ blockchain_address: payload.blockchain_address.toString() });
+            return this.findOneBy({ blockchain_address: payload.blockchain_address.toString() });
+        } catch (error) {
+            return null;
+        }
     }
 }
