@@ -6,6 +6,7 @@ import { BuildingService } from "./building.service";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Building])],
+    exports: [BuildingService],
     controllers: [BuildingController],
     providers: [BuildingService],
 })

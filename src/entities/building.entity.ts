@@ -20,17 +20,17 @@ export class Building {
         type: 'enum',
         enum: Rarity
     })
-    rarity: string;
+    rarity: Rarity;
 
     @Column({
         type: 'enum',
         enum: Size
     })
-    size: string;
+    size: Size;
 
     @Column({ type: 'json' })
     properties: Properties;
-    
+
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 

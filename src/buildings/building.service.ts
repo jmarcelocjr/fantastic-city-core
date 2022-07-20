@@ -1,9 +1,51 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import * as moment from "moment";
 import { Building } from "src/entities/building.entity";
+import { Land } from "src/entities/land.entity";
+import { FindOptionsWhere, Repository } from "typeorm";
 
 @Injectable()
 export class BuildingService {
+    constructor(@InjectRepository(Building) private building_repository: Repository<Building>) {}
+
+    findOneBy(where: FindOptionsWhere<Building>): Promise<Building> {
+        return this.building_repository.findOneBy(where);
+    }
+
+    async installed(building: Building, land: Land): Promise<boolean> {
+        if (building.properties.installed) {
+            throw new BadRequestException('Building already installed');
+        }
+
+        building.properties.installed = true;
+        building.properties.builded = false;
+        building.properties.builded_at = null;
+        building.properties.current_charge = 0;
+        building.properties.charged_until = null;
+
+        building.land = land;
+
+        await this.building_repository.save(building);
+
+        return true;
+    }
+
+    async removed(building: Building): Promise<boolean> {
+        if (!building.properties.installed) {
+            throw new BadRequestException("Building not installed");
+        }
+
+        building.properties.installed = false;
+        building.properties.builded = false;
+        building.properties.builded_at = null;
+        building.land = null;
+
+        await this.building_repository.save(building);
+
+        return true;
+    }
+
     recharge(building: Building): number {
         if (!building.properties.builded) {
             throw new BadRequestException('Not Builded Yet');
