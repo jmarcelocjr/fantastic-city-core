@@ -48,7 +48,7 @@ describe('UserService', () => {
   it('verify', async () => {
     let createdUser = await user_service.create(user);
     let jwt = await user_service.sign(createdUser);
-    
+
     let verifiedUser = await user_service.verify(jwt);
 
     expect(verifiedUser.id).toBe(createdUser.id);

@@ -31,7 +31,7 @@ export class Land {
     slots: Slots;
 
     @Column({ type: 'json' })
-    properties: object;
+    properties?: object;
 
     @OneToMany(type => Building, building => building.land)
     buildings: Building[];
