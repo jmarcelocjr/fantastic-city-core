@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as moment from 'moment';
@@ -24,7 +24,7 @@ describe('BuildingService', () => {
           database: 'test',
           entities: [__dirname + '/../entities/*.entity.{js,ts}'],
           synchronize: true,
-        })
+        }),
       ],
       providers: [BuildingService],
     }).compile();
@@ -36,7 +36,7 @@ describe('BuildingService', () => {
     building.rarity = Rarity.COMMON;
     building.size = Size.SMALL;
     building.properties = {
-        reward_per_charge: 14
+      reward_per_charge: 14,
     };
   });
 
@@ -45,8 +45,8 @@ describe('BuildingService', () => {
       ...building.properties,
       installed: true,
       builded: true,
-      builded_at: new Date()
-    }
+      builded_at: new Date(),
+    };
 
     expect(building_service.recharge(building)).toBe(14);
     expect(building.properties.current_charge).toBe(1);
@@ -55,16 +55,16 @@ describe('BuildingService', () => {
 
   it('Throw exception recharging a recharged building', () => {
     building.properties = {
-        ...building.properties,
-        installed: true,
-        builded: true,
-        builded_at: new Date(),
-        current_charge: Building.MAX_CHARGE,
-        charged_until: moment().add(12, 'hours').toDate()
-    }
+      ...building.properties,
+      installed: true,
+      builded: true,
+      builded_at: new Date(),
+      current_charge: Building.MAX_CHARGE,
+      charged_until: moment().add(12, 'hours').toDate(),
+    };
 
     expect(() => {
-        building_service.recharge(building);
+      building_service.recharge(building);
     }).toThrow('Already charged');
 
     expect(building.properties.current_charge).toBe(3);
@@ -72,14 +72,14 @@ describe('BuildingService', () => {
 
   it('Throw exception recharging a not builded building', () => {
     building.properties = {
-        ...building.properties,
-        installed: false,
-        builded: false,
-        current_charge: 0
-    }
+      ...building.properties,
+      installed: false,
+      builded: false,
+      current_charge: 0,
+    };
 
     expect(() => {
-        building_service.recharge(building);
+      building_service.recharge(building);
     }).toThrow('Not Builded Yet');
 
     expect(building.properties.current_charge).toBe(0);
@@ -87,13 +87,13 @@ describe('BuildingService', () => {
 
   it('check', () => {
     building.properties = {
-        ...building.properties,
-        installed: true,
-        builded: true,
-        builded_at: new Date(),
-        charged_until: moment().add(12, 'hours').toDate(),
-        current_charge: Building.MAX_CHARGE
-    }
+      ...building.properties,
+      installed: true,
+      builded: true,
+      builded_at: new Date(),
+      charged_until: moment().add(12, 'hours').toDate(),
+      current_charge: Building.MAX_CHARGE,
+    };
 
     expect(building_service.check(building)).toBeFalsy();
     expect(building.properties.current_charge).toBe(Building.MAX_CHARGE);
@@ -102,7 +102,7 @@ describe('BuildingService', () => {
   it('install', async () => {
     building.properties = {
       ...building.properties,
-      installed: false
+      installed: false,
     };
 
     expect(await building_service.installed(building, new Land())).toBeTruthy();
@@ -116,16 +116,18 @@ describe('BuildingService', () => {
   it('throw exception when installing a installed building', async () => {
     building.properties = {
       ...building.properties,
-      installed: true
+      installed: true,
     };
 
-    await expect(building_service.installed(building, new Land())).rejects.toThrow('Building already installed');
+    await expect(
+      building_service.installed(building, new Land()),
+    ).rejects.toThrow('Building already installed');
   });
 
   it('remove', async () => {
     building.properties = {
       ...building.properties,
-      installed: true
+      installed: true,
     };
 
     expect(await building_service.removed(building)).toBeTruthy();
@@ -138,7 +140,7 @@ describe('BuildingService', () => {
   it('throw exception when removing a building not installed', async () => {
     building.properties = {
       ...building.properties,
-      installed: false
+      installed: false,
     };
 
     await expect(building_service.removed(building)).rejects.toThrow();

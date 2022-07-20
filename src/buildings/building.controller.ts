@@ -1,15 +1,18 @@
-import { Controller, Get, Param } from "@nestjs/common";
-import { Building } from "src/entities/building.entity";
+import { Controller, Get, Param } from '@nestjs/common';
+import { Building } from 'src/entities/building.entity';
+import { BuildingService } from './building.service';
 
 @Controller('buildings')
 export class BuildingController {
-    @Get()
-    all(): Building[] {
-        return [];
-    }
+  constructor(private building_service: BuildingService) {}
 
-    @Get(':id')
-    get(@Param('id') id): Building {
-        return null;
-    }
+  @Get()
+  all(): Building[] {
+    return [];
+  }
+
+  @Get(':id')
+  async get(@Param('id') id): Promise<Building> {
+    return await this.building_service.findOneBy({ id: id });
+  }
 }

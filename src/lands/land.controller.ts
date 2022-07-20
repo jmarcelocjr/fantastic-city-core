@@ -1,71 +1,98 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Res } from "@nestjs/common";
-import { BuildingService } from "src/buildings/building.service";
-import { MessageResponseDTO } from "src/common/dto";
-import { Building } from "src/entities/building.entity";
-import { Rarity, Size } from "src/entities/enums";
-import { Land } from "src/entities/land.entity";
-import { LandService } from "./land.service";
+import {
+  BadRequestException,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
+import { BuildingService } from 'src/buildings/building.service';
+import { MessageResponseDTO } from 'src/common/dto';
+import { Building } from 'src/entities/building.entity';
+import { Land } from 'src/entities/land.entity';
+import { LandService } from './land.service';
 
 @Controller('lands')
 export class LandController {
-    constructor(
-        private land_service: LandService,
-        private building_service: BuildingService
-    ) {}
+  constructor(
+    private land_service: LandService,
+    private building_service: BuildingService,
+  ) {}
 
-    @Get()
-    getAll(): Promise<Land[]> {
-        return null;
+  @Get()
+  getAll(): Promise<Land[]> {
+    return null;
+  }
+
+  @Get(':id')
+  async get(@Param('id') id: number): Promise<Land> {
+    return await this.land_service.findOneBy({ id: id });
+  }
+
+  @Post(':id/install/:building_id')
+  async install(
+    @Res({ passthrough: true }) res,
+    @Param('id') land_id: number,
+    @Param('building_id') building_id: number,
+  ): Promise<MessageResponseDTO> {
+    const land = await this.land_service.findOneBy({
+      id: land_id,
+      user: res.locals.user,
+    });
+
+    if (!(land instanceof Land)) {
+      throw new BadRequestException('Land not found');
     }
 
-    @Get(':id')
-    get(@Param('id') id: number): Promise<Land> {
-        return null;
+    const building = await this.building_service.findOneBy({
+      id: building_id,
+      user: res.locals.user,
+    });
+
+    if (!(building instanceof Building)) {
+      throw new BadRequestException('Building not found');
     }
 
-    @Post(':id/install/:building_id')
-    async install(@Res({ passthrough: true }) res, @Param('id') land_id: number, @Param('building_id') building_id: number): Promise<MessageResponseDTO> {
-        const land = await this.land_service.findOneBy({ id: land_id, user: res.locals.user });
+    this.land_service.install(land, building);
+    this.building_service.installed(building, land);
 
-        if (!(land instanceof Land)) {
-            throw new BadRequestException("Land not found");
-        }
+    return {
+      success: true,
+      message: 'Building installed successfully',
+    };
+  }
 
-        const building = await this.building_service.findOneBy({ id: building_id, user: res.locals.user });
+  @Delete(':id/remove/:building_id')
+  async remove(
+    @Res({ passthrough: true }) res,
+    @Param('id') land_id: number,
+    @Param('building_id') building_id: number,
+  ): Promise<MessageResponseDTO> {
+    const land = await this.land_service.findOneBy({
+      id: land_id,
+      user: res.locals.user,
+    });
 
-        if (!(building instanceof Building)) {
-            throw new BadRequestException("Building not found");
-        }
-
-        this.land_service.install(land, building);
-        this.building_service.installed(building, land);
-
-        return {
-            success: true,
-            message: "Building installed successfully"
-        };
+    if (!(land instanceof Land)) {
+      throw new BadRequestException('Land not found');
     }
 
-    @Delete(':id/remove/:building_id')
-    async remove(@Res({ passthrough: true }) res, @Param('id') land_id: number, @Param('building_id') building_id: number): Promise<MessageResponseDTO> {
-        const land = await this.land_service.findOneBy({ id: land_id, user: res.locals.user });
+    const building = await this.building_service.findOneBy({
+      id: building_id,
+      user: res.locals.user,
+    });
 
-        if (!(land instanceof Land)) {
-            throw new BadRequestException("Land not found");
-        }
-
-        const building = await this.building_service.findOneBy({ id: building_id, user: res.locals.user });
-
-        if (!(building instanceof Building)) {
-            throw new BadRequestException("Building not found");
-        }
-
-        this.land_service.remove(land, building);
-        this.building_service.removed(building);
-
-        return {
-            success: true,
-            message: "Building removed successfully"
-        }
+    if (!(building instanceof Building)) {
+      throw new BadRequestException('Building not found');
     }
+
+    this.land_service.remove(land, building);
+    this.building_service.removed(building);
+
+    return {
+      success: true,
+      message: 'Building removed successfully',
+    };
+  }
 }
