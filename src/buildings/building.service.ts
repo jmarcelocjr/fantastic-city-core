@@ -12,6 +12,10 @@ export class BuildingService {
     private building_repository: Repository<Building>,
   ) {}
 
+  findBy(where: FindOptionsWhere<Building>): Promise<Building[]> {
+    return this.building_repository.findBy(where);
+  }
+
   findOneBy(where: FindOptionsWhere<Building>): Promise<Building> {
     return this.building_repository.findOneBy(where);
   }
@@ -49,7 +53,7 @@ export class BuildingService {
     return true;
   }
 
-  recharge(building: Building): number {
+  async recharge(building: Building): Promise<number> {
     if (!building.properties.builded) {
       throw new BadRequestException('Not Builded Yet');
     }
@@ -77,6 +81,8 @@ export class BuildingService {
       current_charge: current_charge,
     };
 
+    await this.building_repository.save(building);
+
     return building.properties.reward_per_charge;
   }
 
@@ -89,8 +95,7 @@ export class BuildingService {
       return false;
     }
 
-    const diff =
-      building.properties.charged_until.getTime() - new Date().getTime();
+    const diff = building.properties.charged_until.getTime() - new Date().getTime();
 
     let current_charge = Math.ceil(
       diff / 1000 / 60 / 60 / Building.HOURS_PER_CHARGE,

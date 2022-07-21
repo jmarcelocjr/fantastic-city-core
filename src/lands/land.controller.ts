@@ -7,6 +7,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { BuildingService } from 'src/buildings/building.service';
 import { MessageResponseDTO } from 'src/common/dto';
 import { Building } from 'src/entities/building.entity';
@@ -21,18 +22,18 @@ export class LandController {
   ) {}
 
   @Get()
-  getAll(): Promise<Land[]> {
-    return null;
+  async all(@Res({ passthrough: true }) res: Response): Promise<Land[]> {
+    return this.land_service.findBy({ user: res.locals.user });
   }
 
   @Get(':id')
-  async get(@Param('id') id: number): Promise<Land> {
-    return await this.land_service.findOneBy({ id: id });
+  async get(@Res({ passthrough: true }) res: Response, @Param('id') id: number): Promise<Land> {
+    return await this.land_service.findOneBy({ id: id, user: res.locals.user });
   }
 
   @Post(':id/install/:building_id')
   async install(
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res: Response,
     @Param('id') land_id: number,
     @Param('building_id') building_id: number,
   ): Promise<MessageResponseDTO> {
@@ -65,13 +66,15 @@ export class LandController {
 
   @Delete(':id/remove/:building_id')
   async remove(
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res: Response,
     @Param('id') land_id: number,
     @Param('building_id') building_id: number,
   ): Promise<MessageResponseDTO> {
+    const user = res.locals.user;
+
     const land = await this.land_service.findOneBy({
       id: land_id,
-      user: res.locals.user,
+      user: user,
     });
 
     if (!(land instanceof Land)) {
@@ -80,7 +83,7 @@ export class LandController {
 
     const building = await this.building_service.findOneBy({
       id: building_id,
-      user: res.locals.user,
+      user: user,
     });
 
     if (!(building instanceof Building)) {

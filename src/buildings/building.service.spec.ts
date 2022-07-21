@@ -40,7 +40,7 @@ describe('BuildingService', () => {
     };
   });
 
-  it('recharge', () => {
+  it('recharge', async () => {
     building.properties = {
       ...building.properties,
       installed: true,
@@ -48,12 +48,12 @@ describe('BuildingService', () => {
       builded_at: new Date(),
     };
 
-    expect(building_service.recharge(building)).toBe(14);
+    expect(await building_service.recharge(building)).toBe(14);
     expect(building.properties.current_charge).toBe(1);
     expect(building.properties.charged_until).toBeInstanceOf(Date);
   });
 
-  it('Throw exception recharging a recharged building', () => {
+  it('Throw exception recharging a recharged building', async () => {
     building.properties = {
       ...building.properties,
       installed: true,
@@ -63,14 +63,12 @@ describe('BuildingService', () => {
       charged_until: moment().add(12, 'hours').toDate(),
     };
 
-    expect(() => {
-      building_service.recharge(building);
-    }).toThrow('Already charged');
+    await expect(building_service.recharge(building)).rejects.toThrow('Already charged');
 
     expect(building.properties.current_charge).toBe(3);
   });
 
-  it('Throw exception recharging a not builded building', () => {
+  it('Throw exception recharging a not builded building', async () => {
     building.properties = {
       ...building.properties,
       installed: false,
@@ -78,9 +76,7 @@ describe('BuildingService', () => {
       current_charge: 0,
     };
 
-    expect(() => {
-      building_service.recharge(building);
-    }).toThrow('Not Builded Yet');
+    await expect(building_service.recharge(building)).rejects.toThrow('Not Builded Yet');
 
     expect(building.properties.current_charge).toBe(0);
   });

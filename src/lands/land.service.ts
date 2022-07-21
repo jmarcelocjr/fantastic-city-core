@@ -10,6 +10,10 @@ export class LandService {
     @InjectRepository(Land) private land_repository: Repository<Land>,
   ) {}
 
+  findBy(where: FindOptionsWhere<Land>): Promise<Land[]> {
+    return this.land_repository.findBy(where);
+  }
+
   findOneBy(where: FindOptionsWhere<Land>): Promise<Land> {
     return this.land_repository.findOneBy(where);
   }
