@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BuildingService } from 'src/buildings/building.service';
-import { MessageResponseDTO } from 'src/common/dto';
+import { MessageResponseDTO } from 'src/dto/common.dto';
 import { Building } from 'src/entities/building.entity';
 import { Land } from 'src/entities/land.entity';
 import { LandService } from './land.service';

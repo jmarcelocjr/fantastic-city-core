@@ -1,3 +1,4 @@
+import { Wallet } from 'src/dto/immu-wallet.dto';
 import {
   Column,
   Entity,
@@ -25,4 +26,6 @@ export class User {
 
   @OneToMany(() => Land, (land) => land.user)
   lands?: Land[];
+
+  wallets?: Wallet[]
 }

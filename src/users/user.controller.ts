@@ -1,15 +1,51 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Res, UnauthorizedException } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Response } from 'express';
+import { firstValueFrom } from 'rxjs';
+import { ImmuWalletService, User as ImmuWalletUser } from 'src/dto/immu-wallet.dto';
 import { User } from 'src/entities/user.entity';
 import { AuthResponseDto, AuthUserDto, CreateUserDto } from './dto';
 import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private user_service: UserService) {}
+  private immu_wallet_service: ImmuWalletService;
+
+  constructor(
+    private user_service: UserService,
+    @Inject('IMMUWALLET_PACKAGE') private readonly client: ClientGrpc,
+  ) {}
+
+  onModuleInit() {
+    this.immu_wallet_service = this.client.getService<ImmuWalletService>('ImmuWallet');
+  }
+
+  @Get('')
+  async get(@Res({ passthrough: true }) res: Response): Promise<User> {
+    const user = await this.user_service.findOneBy({ id: res.locals.user.id });
+
+    const wallets = this.immu_wallet_service.getWallets(user as ImmuWalletUser);
+
+    user.wallets = (await firstValueFrom(wallets)).wallets;
+
+    return user;
+  }
 
   @Post()
-  create(@Body() params: CreateUserDto): Promise<User> {
-    return this.user_service.create(params);
+  async create(@Body() params: CreateUserDto): Promise<User> {
+    const user = await this.user_service.create(params);
+    const observable_response = this.immu_wallet_service.registerWallet({
+      user_id: user.id,
+      token: "doullars",
+      balance: 0
+    });
+
+    const response = await firstValueFrom(observable_response);
+    if (!response.success) {
+      console.log(`Error creating wallet: ${response.message}`);
+    }
+
+    return user;
   }
 
   @Post('auth')
